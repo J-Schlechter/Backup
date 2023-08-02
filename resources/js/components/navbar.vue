@@ -1,68 +1,97 @@
 <template>
-    <nav class="navbar" role="navigation" aria-label="main navigation">
-        <div class="navbar-brand">
-          <a class="navbar-item" href="https://bulma.io">
-            <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28">
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <!-- Navbar brand/logo -->
+    <!-- ... Your brand/logo HTML code ... -->
+
+    <!-- Navbar menu items -->
+    <div id="navbarBlog" class="navbar-menu" :class="{ 'is-active': isMenuOpen }">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/">Home</a>
+        <a class="navbar-item">|</a> <!-- Debug: Display isAuthenticated -->
+        <template v-if="isAuthenticated">
+          <a class="navbar-item">
+            <button @click="openNewPostModal" class="button is-success">New Post</button>
           </a>
-      
-          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </a>
+        </template>
+      </div>
+      <div class="navbar-end">
+        <!-- Show different content based on the authentication status -->
+        <template v-if="isAuthenticated">
+          <div class="navbar-item">Logged in as {{ currentUser }}</div>
+          <!-- Show logout button when logged in -->
+          <div class="navbar-item">
+          <button class="button is-danger" @click="logout">Log Out</button>
         </div>
-      
-        <div id="navbarBasicExample" class="navbar-menu">
-          <div class="navbar-start">
-            <a class="navbar-item">
-              Home
-            </a>
-      
-            <a class="navbar-item">
-              Documentation
-            </a>
-      
-            <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link">
-                More
-              </a>
-      
-              <div class="navbar-dropdown">
-                <a class="navbar-item">
-                  About
-                </a>
-                <a class="navbar-item">
-                  Jobs
-                </a>
-                <a class="navbar-item">
-                  Contact
-                </a>
-                <hr class="navbar-divider">
-                <a class="navbar-item">
-                  Report an issue
-                </a>
-              </div>
+        </template>
+        <template v-else>
+          <div class="navbar-item">
+            <div>Logged in as Guest</div>
+            <div class="buttons">
+              <button class="button is-info" @click="openLoginModal">Log In</button>
+              <button class="button is-warning" @click="openRegisterModal">Register</button>
             </div>
           </div>
-      
-          <div class="navbar-end">
-            <div class="navbar-item">
-              <div class="buttons">
-                <a class="button is-primary">
-                  <strong>Sign up</strong>
-                </a>
-                <a class="button is-light">
-                  Log in
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+        </template>
+      </div>
+    </div>
+  </nav>
+  <br>
 </template>
 
 <script>
-export default{
+import { defineComponent, computed, ref } from 'vue';
 
-}
+export default {
+  emits: [
+    'open-new-post-modal',
+    'open-login-modal',
+    'open-register-modal',
+    'logout',
+    'login-success',
+  ],
+  props: { isMenuOpen : { type: Boolean }, isAuthenticated : { type: Boolean }, currentUser : {type: String} },
+  
+  
+  setup(props, { emit }) {
+    // Destructure the props directly
+    const { isMenuOpen, isAuthenticated, currentUser } = props;
+    
+    // Computed property to get the current user's name or 'Guest' when not authenticated
+    const currentUserName = computed(() => {
+      return isAuthenticated ? currentUser.name : 'Guest';
+    });
+
+    // Methods
+    const openNewPostModal = () => {
+      emit('open-new-post-modal');
+    };
+
+    const openRegisterModal = () => {
+      emit('open-register-modal');
+    };
+
+    const openLoginModal = () => {
+      emit('open-login-modal');
+    };
+
+    const logout = () => {
+      emit('logout');
+    };
+
+    return {
+      // Reactive data
+      currentUserName,
+      
+      // Methods
+      openNewPostModal,
+      openRegisterModal,
+      openLoginModal,
+      logout,
+    };
+  },
+};
 </script>
+
+<style>
+/* Add your custom styles here */
+</style>
