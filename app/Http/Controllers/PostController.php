@@ -32,19 +32,12 @@ class PostController extends Controller
         $validatedData['image_path'] = $imageName;
         
         $post = Post::create($validatedData);
-        
-        return response()->json(['message' => 'Post successful'], 200);
+        //Log::info(json_encode($post->image_path));
+        return redirect('/')->with('image', $imagePath);
         
 
     } else {
-        $validatedData['title'] = strip_tags($validatedData['title']);
-        $validatedData['body'] = strip_tags($validatedData['body']);
-        $validatedData['user_id'] = auth()->id();
-        $validatedData['image_path'] = null;
-        
-        $post = Post::create($validatedData);
-        
-        return response()->json(['message' => 'Post successful'], 200);
+        $imagePath = null;
     }
     
     }
@@ -99,14 +92,5 @@ class PostController extends Controller
         $incommingFields['body'] = strip_tags($incommingFields['body']);
         $post->update($incommingFields);
         return redirect('/');
-    }
-
-    public function getPosts()
-    {
-        // Fetch posts from the database using the Post model
-        $posts = Post::with('user')->get();
-
-        // Return the posts as an array
-        return $posts->toArray();
     }
 }

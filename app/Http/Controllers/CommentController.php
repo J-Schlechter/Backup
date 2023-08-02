@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
-    public function createComment($post_id, Request $request){
+    public function createComment(Request $request){
         $incommingFields = $request->validate([
             
-            
+            'post_id'=> 'required|exists:posts,id',
             'text' =>'required',
 
         ]);
@@ -23,21 +23,20 @@ class CommentController extends Controller
         
         $incommingFields['text'] = strip_tags($incommingFields['text']);
         $incommingFields['user_id'] = auth()->id();
-        $incommingFields['post_id'] = $post_id;
+        //Log::info(json_encode($request->all()));
         $comment = Comment::create($incommingFields);
-        //dd($comment);
-        return response()->json($comment, 201);
+        dd($comment);
+        return redirect('/');
       
 
     }
 
-        public function viewComments($postId)
+    public function viewComments($postId)
     {
         $post = Post::find($postId);
         $comments = Comment::where('post_id', $postId)->get();
-        
-        // Return the comments data as JSON
-        return response()->json($comments);
+
+        return view('viewcomments', ['post' => $post, 'comments' => $comments]);
     }
     
 

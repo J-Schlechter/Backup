@@ -1,11 +1,11 @@
 <?php
+
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\UserController;
+use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
-
-
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,24 +18,52 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::middleware('auth')->post('/newPost', [PostController::class, 'createPost']);
-
-Route::get('/home', function () {
+    //$posts = auth()->user()->usersPosts()->latest()->get();
+    $posts = Post::withCount('comments')
+        ->orderBy('comments_count', 'desc')
+        ->get();
     
-    return view('home');
+    //$posts = Post::where('user_id', auth()->id())->get();
+    return view('home', ['posts' => $posts]);
+    //return view('home');
 });
 
 
 
-// Route for handling user registration
+
 Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-//Route::post('/home/verify-token', [HomeController::class, 'verifyToken'])->middleware('auth');
-Route::middleware('auth')->get('/user-data', [UserController::class, 'getUserData']);
-Route::get('/posts', [PostController::class, 'getPosts']);
-Route::get('/viewComments/{post_id}', [CommentController::class, 'viewComments']);
-Route::post('/addComment/{postId}', [CommentController::class, 'createComment']);
 Route::post('/logout', [UserController::class, 'logout']);
+Route::post('/login', [UserController::class, 'login']);
+
+
+Route::post('/upload-image', [PostController::class, 'uploadImage']);
+Route::post('/create-post', [PostController::class, 'createPost']);
+Route::get('/edit-post/{post}', [PostController::class, 'showEditScreen']);
+Route::put('/edit-post/{post}', [PostController::class, 'updatePost']);
+Route::delete('/delete-post/{post}', [PostController::class, 'deletePost']);
+Route::post('/comment', [CommentController::class,'createComment']);
+
+Route::get('/logins', function() {
+    return view('logins');
+    });
+
+Route::get('/registernew', function() {
+    return view('registeruser');
+    });
+
+Route::get('/newpost', function() {
+        return view('newpost');
+    });
+    
+
+Route::get('/viewComments/{post_id}', [CommentController::class,'viewComments']);    
+//Route::get('/viewcomments/{post_id}', function($post) {
+   // $comments = Comment::where('post_id', $post->id)->get();
+        //$comments = Comment::where('post_id' , $post->id);
+        //$posts = Post::where('post_id', $post->id);
+    
+        //$posts = Post::where('user_id', auth()->id())->get();
+        //return view('home', ['posts' => $posts]);
+  //  return view('viewcomments', ['comments' => $comments, 'posts' => $post]);
+   // });
+
